@@ -1,5 +1,6 @@
 package com.example.tictactoe
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -63,10 +64,20 @@ class TTTViewModel : ViewModel() {
 
     fun makeAiMove() {
 
-        val aiMoveIndex = aiMoveSelectHelper(_gameUiState.value.board)
+        val aiMoveIndex = chooseEmptyRandomIndexForAi(_gameUiState.value.board)
+
+        // check
+        val checkedAiMoveIndex = aiMoveSelectHelper(_gameUiState.value.board)
+        // check
+
+        val selectedIndex = if (checkedAiMoveIndex == -1) {
+            aiMoveIndex
+        } else {
+            checkedAiMoveIndex
+        }
 
         val newBoard = _gameUiState.value.board.map {
-            val updatedSquare = if (it.id == aiMoveIndex) {
+            val updatedSquare = if (it.id == selectedIndex) {
                 it.copy(player = Player.X)
             } else {
                 it
@@ -83,15 +94,62 @@ class TTTViewModel : ViewModel() {
         )
     }
 
-    fun aiMoveSelectHelper(board: List<Square>) : Int {
+    fun chooseEmptyRandomIndexForAi(board: List<Square>): Int {
         var randomSquareIndex = (0..8).random()
         while (board[randomSquareIndex].player != Player.NONE) {
             randomSquareIndex = (0..8).random()
         }
-
-        val listOfIndexTriplets = listOf(setOf(0,1,2))
-
         return randomSquareIndex
+    }
+
+    fun aiMoveSelectHelper(board: List<Square>): Int {
+
+        /*
+* 0 1 2
+* 3 4 5
+* 6 7 8
+* */
+
+        val listOfIndexTriplets = listOf(
+            listOf(0, 1, 2),
+            listOf(3, 4, 5),
+            listOf(6, 7, 8),
+            listOf(0, 3, 6),
+            listOf(1, 4, 7),
+            listOf(2, 5, 8),
+            listOf(0, 4, 8),
+            listOf(2, 4, 6),
+        )
+
+        val possibleWinningIndices = getWinningSetOfIndices(board, listOfIndexTriplets)
+        Log.d("Indices", "aiMoveSelectHelper: $possibleWinningIndices")
+        val chosenIndex = possibleWinningIndices.firstOrNull()?.firstOrNull() { board[it].player != Player.O } ?: -1
+        Log.d("CHOSEN", "aiMoveSelectHelper: $chosenIndex")
+        return chosenIndex
+
+    }
+
+    fun getWinningSetOfIndices(
+        board: List<Square>,
+        allSetsOfTrails: List<List<Int>>
+    ): List<List<Int>> {
+        val possibleWinningTrailsForOpponent = mutableListOf<List<Int>>()
+        for (set in allSetsOfTrails) {
+            var opponentCount = 0
+            var aiCount = 0
+            for (index in set) {
+                if (board[index].player == Player.O) {
+                    opponentCount++
+                }
+                if (board[index].player == Player.X) {
+                    aiCount++
+                }
+            }
+            if (opponentCount == 2 && aiCount == 0) {
+                possibleWinningTrailsForOpponent.add(set)
+            }
+        }
+        return possibleWinningTrailsForOpponent
     }
 
     fun startMultiplayerGame() {
