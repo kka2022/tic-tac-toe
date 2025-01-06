@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tictactoe.data.AiMode
 import com.example.tictactoe.data.GameMode
 import com.example.tictactoe.data.GameStatus
 import com.example.tictactoe.data.GameUiState
@@ -129,6 +130,10 @@ class TTTViewModel : ViewModel() {
 
     }
 
+    fun expertLevelAiMoveSelect(): Int {
+        return 0
+    }
+
     fun getWinningSetOfIndices(
         board: List<Square>,
         allSetsOfTrails: List<List<Int>>
@@ -168,7 +173,8 @@ class TTTViewModel : ViewModel() {
                 board = List(9) { Square(id = it, player = Player.NONE) },
                 whoseTurn = Player.O,
                 gameStatus = GameStatus.On,
-                gameMode = GameMode.SinglePlayer
+                gameMode = GameMode.SinglePlayer,
+                aiMode = AiMode.EASY
             )
     }
 
@@ -179,6 +185,7 @@ class TTTViewModel : ViewModel() {
                 whoseTurn = Player.O,
                 gameStatus = GameStatus.On,
                 gameMode = if (_gameUiState.value.gameMode == GameMode.SinglePlayer) GameMode.SinglePlayer else GameMode.MultiPlayer
+
             )
     }
 }
