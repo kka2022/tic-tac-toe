@@ -22,23 +22,23 @@ class TTTViewModel : ViewModel() {
     val gameUiState = _gameUiState
 
     fun makeMove(id: Int) {
+
         val newBoard = _gameUiState.value.board.map {
             val updatedSquare =
                 if (
                     _gameUiState.value.gameStatus == GameStatus.On &&
                     it.player == Player.NONE &&
-                    it.id == id &&
-                    _gameUiState.value.whoseTurn == Player.X
+                    it.id == id
                 ) {
-                    _gameUiState.value = _gameUiState.value.copy(whoseTurn = Player.O)
-                    it.copy(player = Player.X)
-                } else if (_gameUiState.value.gameStatus == GameStatus.On &&
-                    it.player == Player.NONE &&
-                    it.id == id &&
-                    _gameUiState.value.whoseTurn == Player.O
-                ) {
-                    _gameUiState.value = _gameUiState.value.copy(whoseTurn = Player.X)
-                    it.copy(player = Player.O)
+                    if (_gameUiState.value.whoseTurn == Player.X) {
+                        _gameUiState.value = _gameUiState.value.copy(whoseTurn = Player.O)
+                        it.copy(player = Player.X)
+                    } else if (_gameUiState.value.whoseTurn == Player.O) {
+                        _gameUiState.value = _gameUiState.value.copy(whoseTurn = Player.X)
+                        it.copy(player = Player.O)
+                    } else {
+                        it
+                    }
                 } else {
                     it
                 }
@@ -52,10 +52,11 @@ class TTTViewModel : ViewModel() {
             gameStatus = newGameStatus
         )
 
-        if (_gameUiState.value.gameMode == GameMode.SinglePlayer && _gameUiState.value.whoseTurn == Player.X) {
+        if (_gameUiState.value.gameMode == GameMode.SinglePlayer &&
+            _gameUiState.value.whoseTurn == Player.X
+        ) {
             viewModelScope.launch(Dispatchers.Default) {
                 delay(200L)
-
                 if (_gameUiState.value.gameStatus == GameStatus.On) {
                     makeAiMove()
                 }
@@ -63,18 +64,24 @@ class TTTViewModel : ViewModel() {
         }
     }
 
+    fun easyModeAiMove() {
+
+    }
+
     fun makeAiMove() {
 
-        val aiMoveIndex = chooseEmptyRandomIndexForAi(_gameUiState.value.board)
+
+
+        val randomAiMoveIndex = chooseEmptyRandomIndexForAi(_gameUiState.value.board)
 
         // check
-        val checkedAiMoveIndex = aiMoveSelectHelper(_gameUiState.value.board)
+        val calculatedAiMoveIndex = aiMoveSelectHelper(_gameUiState.value.board)
         // check
 
-        val selectedIndex = if (checkedAiMoveIndex == -1) {
-            aiMoveIndex
+        val selectedIndex = if (calculatedAiMoveIndex == -1) {
+            randomAiMoveIndex
         } else {
-            checkedAiMoveIndex
+            calculatedAiMoveIndex
         }
 
         val newBoard = _gameUiState.value.board.map {
@@ -124,13 +131,16 @@ class TTTViewModel : ViewModel() {
 
         val possibleWinningIndices = getWinningSetOfIndices(board, listOfIndexTriplets)
         Log.d("Indices", "aiMoveSelectHelper: $possibleWinningIndices")
-        val chosenIndex = possibleWinningIndices.firstOrNull()?.firstOrNull() { board[it].player != Player.O } ?: -1
+        val chosenIndex =
+            possibleWinningIndices.firstOrNull()?.firstOrNull() { board[it].player != Player.O }
+                ?: -1
         Log.d("CHOSEN", "aiMoveSelectHelper: $chosenIndex")
         return chosenIndex
 
     }
 
     fun expertLevelAiMoveSelect(): Int {
+
         return 0
     }
 
