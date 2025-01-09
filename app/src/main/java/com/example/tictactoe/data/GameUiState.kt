@@ -5,5 +5,5 @@ data class GameUiState(
     val whoseTurn: Player,
     val gameStatus: GameStatus,
     val gameMode: GameMode = GameMode.MultiPlayer,
-    val aiMode: AiMode = AiMode.NONE
+    val aiMode: AiMode
 )

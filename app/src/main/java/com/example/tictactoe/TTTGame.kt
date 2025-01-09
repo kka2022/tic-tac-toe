@@ -1,5 +1,6 @@
 package com.example.tictactoe
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -18,7 +19,10 @@ fun TicTacToeGame(gameViewModel: TTTViewModel) {
         when (it) {
             GameStatus.YetToBegin -> {
                 StartScreenUi(
-                    onStartSinglePlayerClick = { gameViewModel.startSinglePlayerGame() },
+                    onStartSinglePlayerClick = {
+                        gameViewModel.startSinglePlayerGame()
+                        Log.d("TAG", "TicTacToeGame: ${gameUiState.gameStatus}")
+                    },
                     onStartMultiplayerClick = { gameViewModel.startMultiplayerGame() }
                 )
             }
@@ -29,7 +33,8 @@ fun TicTacToeGame(gameViewModel: TTTViewModel) {
                     onSquareClick = { gameViewModel.makeMove(it) },
                     onStartSinglePlayerGameClick = { gameViewModel.startSinglePlayerGame() },
                     onStartMultiplayerGameClick = { gameViewModel.startMultiplayerGame() },
-                    onRestartGameButtonClick = { gameViewModel.restartGame() }
+                    onRestartGameButtonClick = { gameViewModel.restartGame() },
+                    onModeSelectClick = { gameViewModel.changeAiMode(it) }
                 )
             }
         }

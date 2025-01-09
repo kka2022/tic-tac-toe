@@ -33,18 +33,19 @@ fun StartScreenUi(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            repeat(4) { DefaultHorizontalSpacer() }
+            DefaultHorizontalSpacer()
 
             StartGameButton(
                 text = "Start Single Player",
-                onClick = onStartSinglePlayerClick)
+                onClick = onStartSinglePlayerClick
+            )
 
-            DefaultHorizontalSpacer()
             DefaultHorizontalSpacer()
 
             StartGameButton(
                 text = "Start Multiplayer",
-                onClick = onStartMultiplayerClick)
+                onClick = onStartMultiplayerClick
+            )
 
         }
     }

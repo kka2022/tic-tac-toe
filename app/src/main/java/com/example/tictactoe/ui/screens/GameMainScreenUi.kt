@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +30,8 @@ fun GameMainScreenUi(
     onStartSinglePlayerGameClick: () -> Unit,
     onStartMultiplayerGameClick: () -> Unit,
     onRestartGameButtonClick: () -> Unit,
-    onSquareClick: (Int) -> Unit
+    onSquareClick: (Int) -> Unit,
+    onModeSelectClick: (AiMode) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -48,16 +50,13 @@ fun GameMainScreenUi(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                 if (gameUiState.aiMode != AiMode.NONE) {
-                    // TODO: Implement Logic
-                    AiModesUi()
+                    AiModesUi(onModeSelectClick = onModeSelectClick)
                 }
 
-                DefaultHorizontalSpacer()
                 DefaultHorizontalSpacer()
 
                 WhoseTurn(gameUiState.whoseTurn)
 
-                DefaultHorizontalSpacer()
                 DefaultHorizontalSpacer()
 
                 TTTBoard(
@@ -66,14 +65,11 @@ fun GameMainScreenUi(
                 )
 
                 DefaultHorizontalSpacer()
-                DefaultHorizontalSpacer()
-                DefaultHorizontalSpacer()
-                DefaultHorizontalSpacer()
 
                 GameResult(gameUiState.gameStatus.name)
 
                 DefaultHorizontalSpacer()
-                DefaultHorizontalSpacer()
+
             }
         }
         Row(
@@ -94,7 +90,6 @@ fun GameMainScreenUi(
                         text = "Start Single Player",
                         onClick = onStartSinglePlayerGameClick)
 
-                    DefaultHorizontalSpacer()
                     DefaultHorizontalSpacer()
 
                     StartGameButton(

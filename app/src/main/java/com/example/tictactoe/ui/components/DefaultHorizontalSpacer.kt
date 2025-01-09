@@ -12,6 +12,6 @@ fun DefaultHorizontalSpacer() {
     Spacer(
         modifier = Modifier
             .fillMaxWidth()
-            .height(10.dp)
+            .height(20.dp)
     )
 }

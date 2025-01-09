@@ -21,7 +21,8 @@ class TTTViewModel : ViewModel() {
         mutableStateOf(
             GameUiState(
                 whoseTurn = Player.O,
-                gameStatus = GameStatus.YetToBegin
+                gameStatus = GameStatus.YetToBegin,
+                aiMode = AiMode.EASY
             )
         )
     val gameUiState = _gameUiState
@@ -69,10 +70,6 @@ class TTTViewModel : ViewModel() {
         }
     }
 
-    fun easyModeAiMove() {
-
-    }
-
     fun shouldSquareUpdate(
         gameUiState: GameUiState,
         currentSquareId: Int,
@@ -83,9 +80,30 @@ class TTTViewModel : ViewModel() {
                 square.id == currentSquareId
     }
 
-    fun makeAiMove() {
+    fun easyModeAiMove() {
 
+        val randomAiMoveIndex = chooseEmptyRandomIndexForAi(_gameUiState.value.board)
 
+        val newBoard = _gameUiState.value.board.map {
+            val updatedSquare =
+                if (it.id == randomAiMoveIndex) {
+                    it.copy(player = Player.X)
+                } else {
+                    it
+                }
+            updatedSquare
+        }
+
+        val newGameStatus = Utils.checkWinner(newBoard)
+
+        _gameUiState.value = _gameUiState.value.copy(
+            board = newBoard,
+            gameStatus = newGameStatus,
+            whoseTurn = Player.O
+        )
+    }
+
+    fun hardModeAiMove() {
         val randomAiMoveIndex = chooseEmptyRandomIndexForAi(_gameUiState.value.board)
 
         // check
@@ -116,6 +134,23 @@ class TTTViewModel : ViewModel() {
         )
     }
 
+    fun makeAiMove() {
+
+        when (_gameUiState.value.aiMode) {
+            AiMode.NONE -> {}
+            AiMode.EASY -> {
+                easyModeAiMove()
+            }
+
+            AiMode.HARD -> {
+                hardModeAiMove()
+            }
+
+            AiMode.EXPERT -> {}
+        }
+
+    }
+
     fun chooseEmptyRandomIndexForAi(board: List<Square>): Int {
         var randomSquareIndex = (0..8).random()
         while (board[randomSquareIndex].player != Player.NONE) {
@@ -125,12 +160,11 @@ class TTTViewModel : ViewModel() {
     }
 
     fun aiMoveSelectHelper(board: List<Square>): Int {
-
         /*
-* 0 1 2
-* 3 4 5
-* 6 7 8
-* */
+        * 0 1 2
+        * 3 4 5
+        * 6 7 8
+        */
 
         val listOfIndexTriplets = listOf(
             listOf(0, 1, 2),
@@ -181,35 +215,38 @@ class TTTViewModel : ViewModel() {
         return possibleWinningTrailsForOpponent
     }
 
+    fun changeAiMode(aiMode: AiMode) {
+        _gameUiState.value = _gameUiState.value.copy(aiMode = aiMode)
+    }
+
     fun startMultiplayerGame() {
         _gameUiState.value =
             _gameUiState.value.copy(
                 board = List(9) { Square(id = it, player = Player.NONE) },
                 whoseTurn = Player.O,
                 gameStatus = GameStatus.On,
-                gameMode = GameMode.MultiPlayer
+                gameMode = GameMode.MultiPlayer,
+                aiMode = AiMode.NONE
             )
     }
 
     fun startSinglePlayerGame() {
+
         _gameUiState.value =
             _gameUiState.value.copy(
                 board = List(9) { Square(id = it, player = Player.NONE) },
                 whoseTurn = Player.O,
                 gameStatus = GameStatus.On,
                 gameMode = GameMode.SinglePlayer,
-                aiMode = AiMode.EASY
+                aiMode = _gameUiState.value.aiMode
             )
     }
 
     fun restartGame() {
-        _gameUiState.value =
-            _gameUiState.value.copy(
-                board = List(9) { Square(id = it, player = Player.NONE) },
-                whoseTurn = Player.O,
-                gameStatus = GameStatus.On,
-                gameMode = if (_gameUiState.value.gameMode == GameMode.SinglePlayer) GameMode.SinglePlayer else GameMode.MultiPlayer
-
-            )
+        if (_gameUiState.value.gameMode == GameMode.SinglePlayer) {
+            startSinglePlayerGame()
+        } else {
+            startMultiplayerGame()
+        }
     }
 }

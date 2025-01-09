@@ -16,7 +16,7 @@ import com.example.tictactoe.data.AiMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AiModesUi(modifier: Modifier = Modifier) {
+fun AiModesUi(onModeSelectClick: (AiMode) -> Unit) {
     Column {
         Text("Ai Mode")
 
@@ -30,7 +30,10 @@ fun AiModesUi(modifier: Modifier = Modifier) {
                         index = index,
                         count = options.size
                     ),
-                    onClick = { selectedIndex = index },
+                    onClick = {
+                        selectedIndex = index
+                        onModeSelectClick(options[index])
+                    },
                     selected = index == selectedIndex,
                     label = { Text(label.toString()) }
                 )
