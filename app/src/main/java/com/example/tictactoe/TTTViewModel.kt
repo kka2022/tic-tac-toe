@@ -18,31 +18,36 @@ import kotlinx.coroutines.launch
 
 class TTTViewModel : ViewModel() {
     private val _gameUiState: MutableState<GameUiState> =
-        mutableStateOf(GameUiState(whoseTurn = Player.O, gameStatus = GameStatus.YetToBegin))
+        mutableStateOf(
+            GameUiState(
+                whoseTurn = Player.O,
+                gameStatus = GameStatus.YetToBegin
+            )
+        )
     val gameUiState = _gameUiState
 
     fun makeMove(id: Int) {
 
-        val newBoard = _gameUiState.value.board.map {
-            val updatedSquare =
-                if (
-                    _gameUiState.value.gameStatus == GameStatus.On &&
-                    it.player == Player.NONE &&
-                    it.id == id
-                ) {
-                    if (_gameUiState.value.whoseTurn == Player.X) {
+        val newBoard = _gameUiState.value.board.map { square ->
+            if (shouldSquareUpdate(_gameUiState.value, id, square)) {
+                when (_gameUiState.value.whoseTurn) {
+                    Player.X -> {
                         _gameUiState.value = _gameUiState.value.copy(whoseTurn = Player.O)
-                        it.copy(player = Player.X)
-                    } else if (_gameUiState.value.whoseTurn == Player.O) {
-                        _gameUiState.value = _gameUiState.value.copy(whoseTurn = Player.X)
-                        it.copy(player = Player.O)
-                    } else {
-                        it
+                        square.copy(player = Player.X)
                     }
-                } else {
-                    it
+
+                    Player.O -> {
+                        _gameUiState.value = _gameUiState.value.copy(whoseTurn = Player.X)
+                        square.copy(player = Player.O)
+                    }
+
+                    else -> {
+                        square
+                    }
                 }
-            updatedSquare
+            } else {
+                square
+            }
         }
 
         val newGameStatus = Utils.checkWinner(newBoard)
@@ -68,8 +73,17 @@ class TTTViewModel : ViewModel() {
 
     }
 
-    fun makeAiMove() {
+    fun shouldSquareUpdate(
+        gameUiState: GameUiState,
+        currentSquareId: Int,
+        square: Square
+    ): Boolean {
+        return gameUiState.gameStatus == GameStatus.On &&
+                square.player == Player.NONE &&
+                square.id == currentSquareId
+    }
 
+    fun makeAiMove() {
 
 
         val randomAiMoveIndex = chooseEmptyRandomIndexForAi(_gameUiState.value.board)
